@@ -1,0 +1,865 @@
+ARTIFICIAL INTELLIGENCE LAB
+
+10 PYTHON EXPERIMENTS AND 2 PROLOG PROGRAMS
+
+==================================================
+EXPERIMENT 1 – 8 QUEENS PROBLEM
+
+def printSolution(board):
+"""Print the chessboard configuration."""
+for row in board:
+print(" ".join("Q" if col else "." for col in row))
+print("\n")
+
+def isSafe(board, row, col, n):
+"""Check if placing a queen is safe."""
+
+# Check column
+for i in range(row):
+    if board[i][col]:
+        return False
+
+# Check upper-left diagonal
+i, j = row, col
+while i >= 0 and j >= 0:
+    if board[i][j]:
+        return False
+    i -= 1
+    j -= 1
+
+# Check upper-right diagonal
+i, j = row, col
+while i >= 0 and j < n:
+    if board[i][j]:
+        return False
+    i -= 1
+    j += 1
+
+return True
+
+def solveNQueens(board, row, n):
+"""Solve N-Queens using backtracking."""
+
+if row == n:
+    printSolution(board)
+    return True
+
+result = False
+
+for col in range(n):
+    if isSafe(board, row, col, n):
+        # Place the queen
+        board[row][col] = 1
+
+        # Place the remaining queens
+        result = solveNQueens(board, row + 1, n) or result
+
+        # Backtracking
+        board[row][col] = 0
+
+return result
+
+def nQueens(n):
+"""Driver function."""
+board = [[0] * n for _ in range(n)]
+
+if not solveNQueens(board, 0, n):
+    print("No solution exists.")
+else:
+    print("Solutions printed above.")
+
+Solve the 8-Queens problem
+
+nQueens(8)
+
+==================================================
+EXPERIMENT 2 – WATER JUG PROBLEM
+
+print("Water Jug Problem")
+
+x = int(input("Enter X: "))
+y = int(input("Enter Y: "))
+
+while True:
+rno = int(input("Enter the Rule No: "))
+
+if rno == 1:
+    if x < 4:
+        x = 4
+
+elif rno == 2:
+    if y < 3:
+        y = 3
+
+elif rno == 5:
+    if x > 0:
+        x = 0
+
+elif rno == 6:
+    if y > 0:
+        y = 0
+
+elif rno == 7:
+    if x + y >= 4 and y > 0:
+        x, y = 4, y - (4 - x)
+
+elif rno == 8:
+    if x + y >= 3 and x > 0:
+        x, y = x - (3 - y), 3
+
+elif rno == 9:
+    if x + y <= 4 and y > 0:
+        x, y = x + y, 0
+
+elif rno == 10:
+    if x + y <= 3 and x > 0:
+        x, y = 0, x + y
+
+else:
+    print("Invalid Rule Number")
+
+print("X =", x)
+print("Y =", y)
+
+if x == 2:
+    print("The result is a Goal state")
+    break
+
+==================================================
+EXPERIMENT 3 – PATH SEARCH USING A* ALGORITHM
+
+def aStarAlgo(start_node, stop_node):
+
+open_set = set([start_node])
+closed_set = set()
+
+g = {}
+parents = {}
+
+g[start_node] = 0
+parents[start_node] = start_node
+
+while len(open_set) > 0:
+
+    n = None
+
+    # Find node with the lowest f value
+    for v in open_set:
+        if n is None or g[v] + heuristic(v) < g[n] + heuristic(n):
+            n = v
+
+    if n == stop_node:
+        path = []
+
+        while parents[n] != n:
+            path.append(n)
+            n = parents[n]
+
+        path.append(start_node)
+        path.reverse()
+
+        print("Path found: {}".format(path))
+        return path
+
+    if n not in Graph_nodes or Graph_nodes[n] is None:
+        neighbors = []
+    else:
+        neighbors = get_neighbors(n)
+
+    for (m, weight) in neighbors:
+
+        if m not in open_set and m not in closed_set:
+            open_set.add(m)
+            parents[m] = n
+            g[m] = g[n] + weight
+
+        else:
+            if g[m] > g[n] + weight:
+                g[m] = g[n] + weight
+                parents[m] = n
+
+                if m in closed_set:
+                    closed_set.remove(m)
+                    open_set.add(m)
+
+    open_set.remove(n)
+    closed_set.add(n)
+
+print("Path does not exist!")
+return None
+
+Function to return neighbors
+
+def get_neighbors(v):
+
+if v in Graph_nodes:
+    return Graph_nodes[v]
+else:
+    return []
+
+Heuristic function
+
+def heuristic(n):
+
+H_dist = {
+    'A': 11,
+    'B': 6,
+    'C': 99,
+    'D': 1,
+    'E': 7,
+    'G': 0
+}
+
+return H_dist.get(n, float('inf'))
+
+Define the graph
+
+Graph_nodes = {
+'A': [('B', 2), ('E', 3)],
+'B': [('C', 1), ('G', 9)],
+'C': None,
+'E': [('D', 6)],
+'D': [('G', 1)]
+}
+
+Call the A* algorithm
+
+aStarAlgo('A', 'G')
+
+==================================================
+EXPERIMENT 4 – HILL CLIMBING SEARCH ALGORITHM
+
+import random
+
+Generate a random solution
+
+def randomSolution(tsp):
+
+cities = list(range(len(tsp)))
+solution = []
+
+for i in range(len(tsp)):
+    randomCity = random.choice(cities)
+    solution.append(randomCity)
+    cities.remove(randomCity)
+
+return solution
+
+Calculate total route length
+
+def routeLength(tsp, solution):
+
+totalLength = 0
+
+for i in range(len(solution) - 1):
+    totalLength += tsp[solution[i]][solution[i + 1]]
+
+totalLength += tsp[solution[-1]][solution[0]]
+
+return totalLength
+
+Generate neighboring solutions
+
+def getNeighbours(solution):
+
+neighbours = []
+
+for i in range(len(solution)):
+    for j in range(i + 1, len(solution)):
+
+        neighbour = solution.copy()
+
+        neighbour[i] = solution[j]
+        neighbour[j] = solution[i]
+
+        neighbours.append(neighbour)
+
+return neighbours
+
+Find the best neighbor
+
+def getBestNeighbour(tsp, neighbours):
+
+bestRouteLength = routeLength(tsp, neighbours[0])
+bestNeighbour = neighbours[0]
+
+for neighbour in neighbours:
+
+    currentRouteLength = routeLength(tsp, neighbour)
+
+    if currentRouteLength < bestRouteLength:
+        bestRouteLength = currentRouteLength
+        bestNeighbour = neighbour
+
+return bestNeighbour, bestRouteLength
+
+Hill Climbing algorithm
+
+def hillClimbing(tsp):
+
+currentSolution = randomSolution(tsp)
+currentRouteLength = routeLength(tsp, currentSolution)
+
+while True:
+
+    neighbours = getNeighbours(currentSolution)
+
+    bestNeighbour, bestNeighbourRouteLength = getBestNeighbour(tsp, neighbours)
+
+    if bestNeighbourRouteLength < currentRouteLength:
+        currentSolution = bestNeighbour
+        currentRouteLength = bestNeighbourRouteLength
+
+    else:
+        break
+
+return currentSolution, currentRouteLength
+
+Main function
+
+def main():
+
+tsp = [
+    [0, 400, 500, 300],
+    [400, 0, 300, 500],
+    [500, 300, 0, 400],
+    [300, 500, 400, 0]
+]
+
+solution, route_length = hillClimbing(tsp)
+
+print("Best solution:", solution)
+print("Route length:", route_length)
+
+if name == "main":
+main()
+
+==================================================
+EXPERIMENT 5 – FIRST ORDER LOGIC SOLVER
+
+import re
+
+Parse a First Order Logic statement
+
+def parse_fol(statement):
+
+pattern = r'([A-Za-z]+\([^)]*\))'
+
+predicates = re.findall(pattern, statement)
+
+arguments = [
+    re.findall(r'\w+', pred)
+    for pred in predicates
+]
+
+return predicates, arguments
+
+Evaluate a First Order Logic statement
+
+def evaluate_fol(statement, facts):
+
+predicates, arguments = parse_fol(statement)
+
+for pred, args in zip(predicates, arguments):
+
+    pred_parts = pred.split('(')
+
+    pred_name = pred_parts[0]
+
+    pred_args = pred_parts[1].rstrip(')').split(',')
+
+    if pred_name in facts:
+
+        fact_args = facts[pred_name]
+
+        if len(args) == len(fact_args):
+
+            substitution = {
+                arg: fact_arg
+                for arg, fact_arg in zip(args, fact_args)
+            }
+
+            substituted_pred_args = [
+                substitution.get(arg, arg)
+                for arg in pred_args
+            ]
+
+            substituted_pred = (
+                f"{pred_name}({','.join(substituted_pred_args)})"
+            )
+
+            if substituted_pred not in facts:
+                facts[substituted_pred] = []
+
+    else:
+        facts[pred] = []
+
+Example facts
+
+facts = {
+'Person(John)': [],
+'Person(Mary)': [],
+'Likes(John, IceCream)': [],
+'Likes(Mary, Chocolate)': []
+}
+
+statement = 'Likes(x, IceCream)'
+
+evaluate_fol(statement, facts)
+
+print(facts)
+
+==================================================
+EXPERIMENT 6 – FORWARD CHAINING INFERENCE ENGINE
+
+Define the rules
+
+rules = [
+{
+'name': 'Rule 1',
+'conditions': ['A'],
+'conclusion': 'B'
+},
+{
+'name': 'Rule 2',
+'conditions': ['B'],
+'conclusion': 'C'
+},
+{
+'name': 'Rule 3',
+'conditions': ['C'],
+'conclusion': 'D'
+},
+{
+'name': 'Rule 4',
+'conditions': ['E', 'F'],
+'conclusion': 'A'
+}
+]
+
+Define the facts
+
+facts = ['E', 'F']
+
+Check if a rule is applicable
+
+def is_rule_applicable(rule, facts):
+
+for condition in rule['conditions']:
+
+    if condition not in facts:
+        return False
+
+return True
+
+Apply a rule
+
+def apply_rule(rule, facts):
+
+if is_rule_applicable(rule, facts) and rule['conclusion'] not in facts:
+
+    facts.append(rule['conclusion'])
+
+    return True
+
+return False
+
+Forward chaining inference engine
+
+def forward_chaining_inference_engine(rules, facts):
+
+while True:
+
+    new_fact_added = False
+
+    for rule in rules:
+
+        if apply_rule(rule, facts):
+
+            new_fact_added = True
+
+            print("Applied rule:", rule['name'])
+            print("Facts:", facts)
+
+    if not new_fact_added:
+        break
+
+Run the inference engine
+
+forward_chaining_inference_engine(rules, facts)
+
+==================================================
+EXPERIMENT 7 – VACUUM CLEANER AGENT
+
+class VacuumCleanerAgent:
+
+def __init__(self):
+    self.location = 0
+
+# Perceive the room
+def perceive(self, location, status):
+
+    print(
+        f"Perceiving Room {chr(ord('A') + location)} - "
+        f"Status: {'Clean' if status else 'Dirty'}"
+    )
+
+# Clean the room
+def clean(self, location):
+
+    print(f"Cleaning Room {chr(ord('A') + location)}")
+
+    return True
+
+# Choose an action
+def choose_action(self, location, status):
+
+    if status == False:
+        return 'clean'
+
+    else:
+        return 'move' if location == 0 else 'move_back'
+
+# Perform the action
+def act(self, action):
+
+    if action == 'move':
+
+        self.location = 1
+        print("Moving to Room B")
+
+    elif action == 'move_back':
+
+        self.location = 0
+        print("Moving back to Room A")
+
+Main function
+
+def main():
+
+agent = VacuumCleanerAgent()
+
+rooms = [True, False]
+
+while not all(rooms):
+
+    current_location = agent.location
+
+    agent.perceive(current_location, rooms[current_location])
+
+    action = agent.choose_action(
+        current_location,
+        rooms[current_location]
+    )
+
+    if action == 'clean':
+
+        rooms[current_location] = agent.clean(current_location)
+
+    elif action == 'move' or action == 'move_back':
+
+        agent.act(action)
+
+if name == "main":
+main()
+
+==================================================
+EXPERIMENT 8 – TIC TAC TOE GAME
+
+Print the Tic Tac Toe board
+
+def print_board(board):
+
+for row in board:
+
+    print(" | ".join(row))
+    print("-" * 9)
+
+Check the winner
+
+def check_winner(board):
+
+# Check rows
+for row in board:
+
+    if row[0] == row[1] == row[2] != " ":
+        return row[0]
+
+# Check columns
+for col in range(3):
+
+    if board[0][col] == board[1][col] == board[2][col] != " ":
+        return board[0][col]
+
+# Check diagonals
+if board[0][0] == board[1][1] == board[2][2] != " ":
+    return board[0][0]
+
+if board[0][2] == board[1][1] == board[2][0] != " ":
+    return board[0][2]
+
+return None
+
+Play the game
+
+def play_game():
+
+board = [
+    [" ", " ", " "],
+    [" ", " ", " "],
+    [" ", " ", " "]
+]
+
+current_player = "X"
+moves = 0
+
+while True:
+
+    print_board(board)
+
+    # Get player's move
+    while True:
+
+        try:
+
+            row = int(input(
+                f"Player {current_player}, enter the row (0-2): "
+            ))
+
+            col = int(input(
+                f"Player {current_player}, enter the column (0-2): "
+            ))
+
+            if 0 <= row <= 2 and 0 <= col <= 2 and board[row][col] == " ":
+
+                board[row][col] = current_player
+                break
+
+            else:
+                print("Invalid move. Try again.")
+
+        except ValueError:
+            print("Invalid input. Enter numbers between 0 and 2.")
+
+    moves += 1
+
+    # Check winner
+    winner = check_winner(board)
+
+    if winner:
+
+        print_board(board)
+        print(f"Player {winner} wins!")
+        break
+
+    # Check draw
+    if moves == 9:
+
+        print_board(board)
+        print("It's a draw!")
+        break
+
+    # Switch player
+    current_player = "O" if current_player == "X" else "X"
+
+Start the game
+
+play_game()
+
+==================================================
+EXPERIMENT 9 – TURTLE MOVING SIMULATION
+
+import turtle
+
+Create a turtle object
+
+my_turtle = turtle.Turtle()
+
+Move the turtle forward
+
+my_turtle.forward(100)
+
+Rotate the turtle left by 90 degrees
+
+my_turtle.left(90)
+
+Move forward again
+
+my_turtle.forward(100)
+
+Rotate right by 45 degrees
+
+my_turtle.right(45)
+
+Move backward
+
+my_turtle.backward(100)
+
+Hide the turtle
+
+my_turtle.hideturtle()
+
+Close the graphics window when finished
+
+turtle.done()
+
+==================================================
+EXPERIMENT 10 – GAME PLAYING SIMULATION
+
+Initialize the game board
+
+def initialize_board():
+
+return [
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0]
+]
+
+Print the board
+
+def print_board(board):
+
+for row in board:
+    print(row)
+
+Check if the board is full
+
+def is_board_full(board):
+
+for row in board:
+
+    if 0 in row:
+        return False
+
+return True
+
+Make a move
+
+def make_move(board, row, col, player):
+
+if 0 <= row < 3 and 0 <= col < 3 and board[row][col] == 0:
+
+    board[row][col] = player
+    return True
+
+else:
+    return False
+
+Check the winner
+
+def check_winner(board):
+
+for i in range(3):
+
+    # Check rows
+    if board[i][0] == board[i][1] == board[i][2] != 0:
+        return board[i][0]
+
+    # Check columns
+    if board[0][i] == board[1][i] == board[2][i] != 0:
+        return board[0][i]
+
+# Check diagonals
+if board[0][0] == board[1][1] == board[2][2] != 0:
+    return board[0][0]
+
+if board[0][2] == board[1][1] == board[2][0] != 0:
+    return board[0][2]
+
+return 0
+
+Simulate the game
+
+board = initialize_board()
+
+current_player = 1
+
+while True:
+
+# Print current board
+print_board(board)
+
+# Get player input
+row = int(input("Enter the row (0-2): "))
+col = int(input("Enter the column (0-2): "))
+
+# Make the move
+if make_move(board, row, col, current_player):
+
+    # Check winner
+    winner = check_winner(board)
+
+    if winner != 0:
+
+        print_board(board)
+        print("Player", winner, "wins!")
+        break
+
+    # Check draw
+    if is_board_full(board):
+
+        print_board(board)
+        print("It's a draw!")
+        break
+
+    # Switch player
+    current_player = 2 if current_player == 1 else 1
+
+else:
+    print("Invalid move. Try again.")
+
+==================================================
+PROLOG PROGRAM 1 – SIMPLE FACTS
+
+% Simple Facts
+
+likes(ram, mango).
+girl(seema).
+red(rose).
+likes(bill, cindy).
+owns(john, gold).
+
+==================================================
+PROLOG PROGRAM 2 – MONKEY BANANA PROBLEM
+
+% Initial facts
+
+on(floor, monkey).
+on(floor, chair).
+
+in(room, monkey).
+in(room, chair).
+in(room, banana).
+
+at(ceiling, banana).
+
+strong(monkey).
+grasp(monkey).
+
+climb(monkey, chair).
+
+% Rules
+
+push(monkey, chair) :-
+strong(monkey).
+
+under(banana, chair) :-
+push(monkey, chair).
+
+canreach(banana, monkey) :-
+(
+at(floor, banana)
+;
+(
+at(ceiling, banana),
+under(banana, chair),
+climb(monkey, chair)
+)
+).
+
+canget(banana, monkey) :-
+canreach(banana, monkey),
+grasp(monkey).
+
+% End of AI Lab Programs
